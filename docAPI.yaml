@@ -1,0 +1,274 @@
+openapi: 3.0.1
+info:
+  title: API "Время не ждет"
+  version: 1.0.0
+  description: >
+    Полная спецификация API контроллера для информационной системы ресторана "Время не ждет"
+
+servers:
+  - url: https://localhost:7214
+    description: Local server
+
+paths:
+  /menu/positions:
+    get:
+      summary: Получить все позиции меню с разделами
+      tags: [Menu]
+      responses:
+        '200':
+          description: Успешный ответ со списком позиций
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Position'
+        '400':
+          description: Ошибка запроса
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /login:
+    post:
+      summary: Авторизация пользователя
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: Возвращает JWT токен и информацию о пользователе
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userInfo:
+                    $ref: '#/components/schemas/UserDto'
+                  token:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        '400':
+          description: Ошибка авторизации
+          content:
+            text/plain:
+              schema:
+                type: string
+        '401':
+          description: Доступ запрещён
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /registration:
+    post:
+      summary: Регистрация нового пользователя
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserDto'
+      responses:
+        '200':
+          description: Пользователь успешно зарегистрирован
+        '400':
+          description: Ошибка регистрации
+          content:
+            text/plain:
+              schema:
+                type: string
+
+
+  /deliveries:
+    post:
+      summary: Добавить новый заказ на доставку
+      tags: [Delivery]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDeliveryDto'
+      responses:
+        '200':
+          description: Доставка успешно добавлена
+        '400':
+          description: Ошибка при создании доставки
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /reservations:
+    post:
+      summary: Создать новую бронь
+      tags: [Reservations]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateReservationsQuery'
+      responses:
+        '200':
+          description: Бронь успешно создана
+        '400':
+          description: Ошибка при создании брони
+          content:
+            text/plain:
+              schema:
+                type: string
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      required: [login, password]
+      properties:
+        login:
+          type: string
+          example: user123
+        password:
+          type: string
+          example: qwerty123
+
+    UserDto:
+      type: object
+      required: [id, name, email, role]
+      properties:
+        id:
+          type: integer
+          example: 12
+        name:
+          type: string
+          example: user123
+        email:
+          type: string
+          example: ivan@example.com
+        role:
+          type: string
+          example: user
+
+    CreateUserDto:
+      type: object
+      required: [login, password, email]
+      properties:
+        login:
+          type: string
+          example: newUser
+        password:
+          type: string
+          example: 123456
+        email:
+          type: string
+          example: new@user.com
+
+    CreateDeliveryDto:
+      type: object
+      required: [positions, address]
+      properties:
+        positions:
+          type: array
+          description: Список позиций для доставки (минимум 1)
+          items:
+            $ref: '#/components/schemas/PositionsDTO'
+          minItems: 1
+        address:
+          type: string
+          example: ул. Ленина, 15
+
+    PositionsDTO:
+      type: object
+      required: [id, name, cost, quantity]
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Zen harmony
+        cost:
+          type: number
+          format: decimal
+          example: 3600.0000
+        quantity:
+          type: integer
+          example: 2
+
+    CreateReservationsQuery:
+      type: object
+      required: [name, phoneNumber, reservationDate, reservationTime, guests, format]
+      properties:
+        name:
+          type: string
+          example: Иван Иванов
+        phoneNumber:
+          type: string
+          example: +7 (900) 123-45-67
+        reservationDate:
+          type: string
+          example: 2025-05-01
+        reservationTime:
+          type: string
+          example: 19:30
+        guests:
+          type: integer
+          example: 4
+        format:
+          type: string
+          example: День рождения
+        reservationComment:
+          type: string
+          example: Нужен столик у окна
+
+    Position:
+      type: object
+      required: [id, sectionId]
+      properties:
+        id:
+          type: integer
+          example: 16
+        name:
+          type: string
+          example: Матча-кура
+        description:
+          type: string
+          example: Матча, юдзу, вермут и благородный японский джин.
+        sectionId:
+          type: integer
+          example: 5
+        section:
+          $ref: '#/components/schemas/Section'
+        cost:
+          type: number
+          example: 630.0000
+        imageSource:
+          type: string
+          example: https://localhost:7214/Public/Матча-кура.png
+
+    Section:
+      type: object
+      required: [id]
+      properties:
+        id:
+          type: integer
+          example: 5
+        name:
+          type: string
+          example: Паринг & Бар

@@ -1,0 +1,63 @@
+## Игнорировать файлы сборки и бинарные файлы
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+
+## Файлы резервных копий и временные файлы
+*.bak
+*.tmp
+*.temp
+*~
+
+## Файлы пользовательских настроек
+*.user
+*.userosscache
+*.sln.docstates
+
+## Файлы кэша
+[Tt]humbs.db
+$tf/
+*.vspscc
+*.vssscc
+
+## Файлы пакетов NuGet
+packages/
+*.nupkg
+.nuget/
+NuGet.exe
+
+## Файлы журналов и диагностики
+*.log
+*.etl
+*.pidb
+*.log
+*.suo
+*.sdf
+*.opensdf
+*.db
+
+## Файлы покрытия тестов
+coverage.xml
+*.coverage
+*.coveragexml
+
+## Файлы публикации
+publish/
+PublishProfiles/
+*.pubxml
+
+## Файлы Rider
+.idea/
+*.sln.iml
+
+## Файлы VS Code
+.vscode/
+
+## Файлы мониторинга производительности
+*.diagsession
+
+## Файлы Docker
+.dockerignore
+
+## Файлы миграций Entity Framework (если нужно игнорировать)
+#Migrations/
